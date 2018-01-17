@@ -10,5 +10,5 @@ parts
 src/*.egg-info
 lib
 lib64
-myportfolio/myportfolio/local_settings.py
+local_settings.py
 *~
