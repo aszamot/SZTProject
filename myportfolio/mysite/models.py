@@ -29,11 +29,12 @@ class Article(models.Model):
 class Art(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
+    thumbnail = models.ImageField(upload_to='images/art_thumbs', blank=True, null=True)
 
 
 class ArtImage(models.Model):
     art = models.ForeignKey(Art, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to='images/about/')
+    image = models.ImageField(upload_to='images/art/')
 
 
 class Project(models.Model):

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
+{% load widget_tweaks %}
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -71,30 +71,46 @@
     <div class="container" align="center">
         <h1>CONTACT ME</h1>
         <hr>
-        <form class="container" id="form-validation" novalidate>
-            <div class="row">
-                <div class="form-group col-md-6 mb-3" align="left">
-                    <label for="name">Name and surname:</label>
-                    <input type="text" class="form-control" id="name" required>
-                    <div class="invalid-feedback">
-                        Enter name.
-                    </div>
-                </div>
-                <div class="form-group col-md-6 mb-3" align="left">
-                    <label for="email">Email:</label>
-                    <input type="email" class="form-control" id="email" required>
-                    <div class="invalid-feedback">
-                        Enter email.
-                    </div>
-                </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
             </div>
+            {% endif %}
+
+            {% for field in form.visible_fields %}
             <div class="form-group" align="left">
-                <label for="message">Message:</label>
-                <textarea class="form-control" rows="5" id="message" required></textarea>
+                {{ field.label_tag }}
+
+                {% if form.is_bound %}
+                    {% if field.errors %}
+                        {% render_field field class="form-control is-invalid" %}
+                            {% for error in field.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+                    {% else %}
+                        {% render_field field class="form-control is-valid" %}
+                    {% endif %}
+                {% else %}
+                    {% render_field field class="form-control" %}
+                {% endif %}
+
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
             </div>
+            {% endfor %}
+
             <button type="submit" class="btn btn-outline-secondary " style="margin-bottom: 32px;">Send</button>
         </form>
     </div>
+
 </div>
 
 <div id="Footer" class="Row">

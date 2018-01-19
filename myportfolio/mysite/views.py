@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.core.mail import EmailMessage, BadHeaderError
 from django.http import HttpResponse
 from django.template import loader
+from django.shortcuts import redirect
 
 from .models import *
-from django.core.mail import send_mail
+from .forms import ContactForm
 
 
 def index(request):
@@ -27,9 +29,29 @@ def index(request):
 
 
 def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = request.POST.get('name', '')
+            email = request.POST.get('email', '')
+            message = request.POST.get('message', '')
+            try:
+                email = EmailMessage(
+                    "PORTFOLIO: new msg from " + name,
+                    message,
+                    email,
+                    ['tomasz.testowy.gosc@gmail.com'],
+                )
+                email.send()
+            except BadHeaderError:
+                return HttpResponse('Invalid header found.')
+            return redirect('thanks')
+    else:
+        form = ContactForm()
+
     template = loader.get_template('mysite/contact.html')
     context = {
-
+        'form': form,
     }
     return HttpResponse(template.render(context, request))
 
@@ -66,12 +88,6 @@ def art(request, art_id):
     return HttpResponse(template.render(context, request))
 
 
-def send_email(request, name, msg, from_email):
-    send_mail(
-        'PORTFOLIO: You got message from ' + name,
-        msg,
-        from_email,
-        ['tomasz.testowy.gosc@gmail.com'],
-    )
-    template = loader.get_template('mysite/contact.html')
-    return HttpResponse(template.render(request))
+def thanks(request):
+    template = loader.get_template('mysite/thanks.html')
+    return HttpResponse(template.render({}, request))
